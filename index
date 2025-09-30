@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>........TITLE..........</title>
+  <title>sciencequiz</title>
   <style>
     body {
       margin: 0;
@@ -20,7 +20,7 @@
 </head>
 <body>
   <iframe 
-    src=".........................URL.........................." 
+    src="https://script.google.com/macros/s/AKfycbwuCI_wAJFUEOhdlkKDp_PPMO6rFljPYoEDJTcVNnUUENqkhMzmMtpPtZSyIykM63cMDA/exec" 
     allow="fullscreen"
     sandbox="allow-forms allow-scripts allow-same-origin allow-popups">
   </iframe>
