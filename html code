@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <style>
+      body { font-family: Arial, sans-serif; padding: 20px; }
+      label { display: block; margin-top: 10px; }
+      input, select { padding: 6px; margin-top: 4px; width: 100%; box-sizing: border-box; }
+      table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+      th, td { border: 1px solid #ccc; padding: 6px; text-align: left; }
+      th { background: #f0f0f0; }
+      button { margin-top: 15px; padding: 10px 20px; background: #4285F4; color: white; border: none; border-radius: 4px; cursor: pointer; }
+      button:hover { background: #3367D6; }
+      button:disabled { background: #aaa; cursor: not-allowed; }
+      .error { color: red; font-weight: bold; margin-top: 10px; }
+      #spinner { display: none; margin-top: 15px; text-align: center; }
+      .loader {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #4285F4;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        animation: spin 1s linear infinite;
+        margin: auto;
+      }
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      input.error { border: 2px solid red !important; }
+      input.success { border: 2px solid green !important; }
+
+      /* Mobile-friendly styles */
+      @media (max-width: 600px) {
+        table, thead, tbody, th, td, tr {
+          display: block;
+          width: 100%;
+        }
+        table tr {
+          margin-bottom: 15px;
+          border-bottom: 2px solid #eee;
+        }
+        table td {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+          padding: 10px 5px;
+          width: 100%;
+        }
+        table td input,
+        table td select {
+          width: 100%;
+          min-height: 45px;
+          font-size: 16px;
+          padding: 10px;
+          box-sizing: border-box;
+        }
+        th { display: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <h2>School Data Collection Form</h2>
+    <form id="dataForm">
+      <label>UDISE Code:
+        <input type="text" id="udise" name="udise" required>
+        <small id="udiseError" style="color:red; display:none;"></small>
+        <small id="udiseSuccess" style="color:green; display:none;"></small>
+      </label>
+
+      <label>School Name:
+        <input type="text" id="school" name="school" readonly required>
+      </label>
+
+      <label>Headmaster Name:
+        <input type="text" name="headmaster" required style="text-transform:uppercase">
+      </label>
+
+      <label>Mobile Number:
+        <input type="text" name="mobile" pattern="^[0-9]{10}$" required title="10 digit mobile number">
+      </label>
+
+      <h3>Student Details</h3>
+      <table>
+        <tr>
+          <th>Student Name</th>
+          <th>Father Name</th>
+          <th>Class</th>
+          <th>SR Number</th>
+        </tr>
+        <tr>
+          <td><input type="text" name="student1" style="text-transform:uppercase" required></td>
+          <td><input type="text" name="father1" style="text-transform:uppercase" required></td>
+          <td>
+            <select name="class1" required>
+              <option value="">--Select--</option>
+              <option value="VI">VI</option>
+              <option value="VII">VII</option>
+              <option value="VIII">VIII</option>
+            </select>
+          </td>
+          <td><input type="number" name="sr1" required></td>
+        </tr>
+        <tr>
+          <td><input type="text" name="student2" style="text-transform:uppercase" required></td>
+          <td><input type="text" name="father2" style="text-transform:uppercase" required></td>
+          <td>
+            <select name="class2" required>
+              <option value="">--Select--</option>
+              <option value="VI">VI</option>
+              <option value="VII">VII</option>
+              <option value="VIII">VIII</option>
+            </select>
+          </td>
+          <td><input type="number" name="sr2" required></td>
+        </tr>
+        <tr>
+          <td><input type="text" name="student3" style="text-transform:uppercase" required></td>
+          <td><input type="text" name="father3" style="text-transform:uppercase" required></td>
+          <td>
+            <select name="class3" required>
+              <option value="">--Select--</option>
+              <option value="VI">VI</option>
+              <option value="VII">VII</option>
+              <option value="VIII">VIII</option>
+            </select>
+          </td>
+          <td><input type="number" name="sr3" required></td>
+        </tr>
+      </table>
+
+      <button id="submitBtn" type="submit">Submit</button>
+    </form>
+
+    <div id="spinner">
+      <div class="loader"></div>
+      <p>Submitting, please wait...</p>
+    </div>
+
+    <p id="response"></p>
+
+    <script>
+      const udiseInput = document.getElementById("udise");
+      const udiseError = document.getElementById("udiseError");
+      const udiseSuccess = document.getElementById("udiseSuccess");
+      const submitBtn = document.getElementById("submitBtn");
+
+      // Allow only digits, max 10
+      udiseInput.addEventListener("input", function () {
+        this.value = this.value.replace(/\D/g, "");
+        if (this.value.length > 10) {
+          this.value = this.value.slice(0, 10);
+        }
+        udiseError.style.display = "none";
+        udiseSuccess.style.display = "none";
+        udiseInput.classList.remove("error", "success");
+      });
+
+      // Validate on blur
+      udiseInput.addEventListener("blur", function () {
+        const udise = this.value;
+
+        udiseError.style.display = "none";
+        udiseSuccess.style.display = "none";
+        udiseInput.classList.remove("error", "success");
+
+        if (udise.startsWith("0")) {
+          udiseError.innerText = "❌ UDISE Code cannot start with 0.";
+          udiseError.style.display = "block";
+          udiseInput.classList.add("error");
+          this.value = "";
+          document.getElementById("school").value = "";
+          return;
+        }
+
+        if (/^[1-9][0-9]{9}$/.test(udise)) {
+          udiseInput.classList.add("success");
+          udiseSuccess.innerText = "✅ Valid UDISE Code";
+          udiseSuccess.style.display = "block";
+          google.script.run.withSuccessHandler(function (name) {
+            document.getElementById("school").value = name || "❌ Not found";
+          }).getSchoolByUDISE(udise);
+        } else if (udise.length > 0) {
+          udiseError.innerText = "❌ UDISE Code must be exactly 10 digits.";
+          udiseError.style.display = "block";
+          udiseInput.classList.add("error");
+          document.getElementById("school").value = "";
+        }
+      });
+
+      // Submit handler
+      document.getElementById("dataForm").addEventListener("submit", function (e) {
+        e.preventDefault();
+        const formData = Object.fromEntries(new FormData(this).entries());
+
+        const students = [];
+        for (let i = 1; i <= 3; i++) {
+          students.push({
+            student: formData["student" + i] || "",
+            father: formData["father" + i] || "",
+            class: formData["class" + i] || "",
+            sr: formData["sr" + i] || ""
+          });
+          delete formData["student" + i];
+          delete formData["father" + i];
+          delete formData["class" + i];
+          delete formData["sr" + i];
+        }
+
+        formData.students = JSON.stringify(students);
+
+        submitBtn.disabled = true;
+        document.getElementById("spinner").style.display = "block";
+        document.getElementById("response").innerText = "";
+
+        google.script.run
+          .withSuccessHandler(function (msg) {
+            document.getElementById("spinner").style.display = "none";
+            submitBtn.disabled = false;
+            document.getElementById("response").innerHTML = "<span style='color:green'>" + msg + "</span>";
+            document.getElementById("dataForm").reset();
+            document.getElementById("school").value = "";
+          })
+          .withFailureHandler(function (err) {
+            document.getElementById("spinner").style.display = "none";
+            submitBtn.disabled = false;
+            document.getElementById("response").innerHTML = "<span class='error'>" + err.message + "</span>";
+          })
+          .submitForm(formData);
+      });
+    </script>
+  </body>
+</html>
